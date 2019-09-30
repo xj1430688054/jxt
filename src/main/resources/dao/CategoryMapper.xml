@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gl.jxt.dao.ICategoryDao">
+    <resultMap id="CategoryResult" type="Category">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <collection property="teachers" column="id" javaType="ArrayList" ofType="Teacher" select="selectCategoryTeacher" />
+    </resultMap>
+
+    <sql id="category_info">
+        c.id,c.name,c.department_id,d.id 'department.id',d.name 'department.name'
+        FROM tb_category c
+            LEFT JOIN tb_department d
+            ON c.department_id = d.id
+    </sql>
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="Category" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO tb_category (name,department_id) VALUES (#{name},#{department.id})
+    </insert>
+
+    <update id="update" parameterType="Category">
+        UPDATE tb_department
+        <set>
+            <if test="name != null and name != ''">
+                name=#{name}
+            </if>
+            <if test="department.id != null">
+                department_id=#{department.id}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM tb_category WHERE id = #{id}
+    </delete>
+
+    <!--获取全部分类-->
+    <select id="categoryList" resultMap="CategoryResult">
+        SELECT <include refid="category_info"/>
+    </select>
+
+    <!--根据分类名称获取分类-->
+    <select id="findByName" resultMap="CategoryResult">
+        SELECT <include refid="category_info"/>
+        WHERE c.name = #{name}
+    </select>
+
+    <!--根据分类id获取分类-->
+    <select id="findById" resultMap="CategoryResult">
+        SELECT <include refid="category_info"/>
+        WHERE c.id = #{id}
+    </select>
+
+    <!--更改系别-->
+    <update id="changeDepartment" parameterType="java.lang.Integer">
+        UPDATE tb_category SET department_id =#{nDid} WHERE department_id=#{did}
+    </update>
+
+    <!--根据分类id获取教师-->
+    <select id="selectCategoryTeacher" resultType="Teacher">
+        SELECT t.id,t.name,t.capacity,t.student_count as 'studentCount',t.content
+        FROM tb_teacher_category tc
+            LEFT JOIN tb_teacher t
+            ON tc.teacher_id = t.id
+        WHERE tc.category_id = #{id}
+    </select>
+
+</mapper>

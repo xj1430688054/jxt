@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gl.jxt.dao.IItemDao">
+    <resultMap id="ItemResult" type="Item">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <collection property="categories" javaType="ArrayList" column="id" ofType="Category"  select="selectItemCategory" />
+    </resultMap>
+
+    <sql id="item_info">
+             i.id,i.NAME,i.type,i.state,i.create_time
+             FROM tb_item i
+    </sql>
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="Item" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO tb_item (name,type,state,create_time)
+        VALUES (#{name},#{type},#{state},now())
+    </insert>
+
+    <!--编辑条目信息-->
+    <update id="update" parameterType="Item">
+        UPDATE tb_item
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--更改条目状态-->
+    <update id="changeState">
+        UPDATE tb_item
+        SET state = #{state}
+        WHERE id = #{id}
+    </update>
+
+    <!--删除条目-->
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM tb_item WHERE id = #{id}
+    </delete>
+
+    <!--根据条目id获取分类-->
+    <select id="selectItemCategory" resultType="CategoryItem">
+        SELECT c.id, c.name, d.id 'department.id', d.name 'department.name',ic.state 'state'
+        FROM tb_item_category ic
+            LEFT JOIN tb_category c
+            ON ic.category_id = c.id
+            LEFT JOIN tb_department d
+            ON d.id = c.department_id
+        WHERE ic.item_id = #{id}
+    </select>
+
+    <!--获取全部条目-->
+    <select id="itemList" resultMap="ItemResult">
+        SELECT <include refid="item_info"/>
+    </select>
+
+    <!--通过Page获取全部条目-->
+    <select id="itemListByPage" resultMap="ItemResult">
+        SELECT <include refid="item_info"/>
+    </select>
+
+    <!--根据id获取条目-->
+    <select id="findById" resultMap="ItemResult">
+        SELECT <include refid="item_info"/>
+        WHERE id = #{id}
+    </select>
+
+</mapper>

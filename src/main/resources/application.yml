@@ -1,0 +1,27 @@
+logging:
+  level:
+    org.springframework: WARN
+    org.spring.springboot.dao: debug
+    com.gl.jxt.dao: debug
+spring:
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/tong?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: root
+  freemarker:
+    allow-request-override: false
+    cache: false
+    check-template-location: true
+    charset: UTF-8
+    content-type: text/html; charset=utf-8
+    expose-request-attributes: false
+    expose-session-attributes: false
+    expose-spring-macro-helpers: false
+    suffix: .ftl
+    template-loader-path: classpath:/templates
+mybatis:
+    typeAliasesPackage: com.gl.jxt.domain
+    mapperLocations: classpath:dao/*
+    configLocation: classpath:mybatis-config.xml
+

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gl.jxt.dao.IOrderDao">
+
+    <sql id="order_info">
+            o.id,o.create_time AS createTime,o.type ,
+                m.id AS 'memberOrder.member.id',m.name AS 'memberOrder.member.name',
+                m.number AS 'memberOrder.member.number',m.class AS 'memberOrder.member.className',
+                m.contact_phone AS 'memberOrder.member.contactPhone',m.contact_email AS 'memberOrder.member.contactEmail',
+                i.id AS 'memberOrder.item.id',i.name AS 'memberOrder.item.name',
+                t.id AS 'memberOrder.teacher.id',t.name AS 'memberOrder.teacher.name',
+                c.id AS 'memberOrder.category.id', c.name AS 'memberOrder.category.name',
+                g.id AS 'memberOrder.group.id'
+        FROM tb_order o
+            LEFT JOIN tb_group g ON o.group_id = g.id
+            LEFT JOIN tb_member_order  mo ON mo.id = o.member_order_id
+            LEFT JOIN tb_member m ON m.id = mo.member_id
+            LEFT JOIN tb_item i ON i.id = mo.item_id
+            LEFT JOIN tb_category c ON c.id = mo.category_id
+            LEFT JOIN tb_teacher t ON t.id = mo.teacher_id
+    </sql>
+
+    <!-- 保存 -->
+    <insert id="saveMember" parameterType="MemberOrder" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO tb_member_order (member_id,item_id,category_id,teacher_id,group_id)
+        VALUES (#{member.id},#{item.id},#{category.id},#{teacher.id},#{group.id})
+    </insert>
+
+    <insert id="save" parameterType="Order" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO tb_order (member_order_id,group_id,type,create_time)
+        VALUES (#{memberOrder.id},#{group.id},#{type},now())
+    </insert>
+
+    <!--删除，级联删除Order-->
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM tb_member_order WHERE id = #{id}
+    </delete>
+
+    <!--删除，级联删除Order-->
+    <delete id="deleteByMid" parameterType="java.lang.Integer">
+        DELETE FROM tb_member_order WHERE member_id = #{mid}
+    </delete>
+    
+    <select id="findById" resultType="Order">
+        SELECT <include refid="order_info"/>
+        WHERE o.id = #{id}
+    </select>
+
+    <!--更新-->
+    <update id="updateMember" parameterType="MemberOrder">
+        UPDATE tb_member_order
+        <set>
+            <if test="item.id != null">
+                item_id = #{item.id},
+            </if>
+            <if test="member.id != null">
+                member_id = #{member.id},
+            </if>
+            <if test="teacher.id != null">
+                teacher_id = #{teacher.id},
+            </if>
+            <if test="group.id != null">
+                group_id = #{group.id},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="update" parameterType="Order">
+        UPDATE tb_order
+        <set>
+            <if test="member.id != null">
+                member_id = #{member.id},
+            </if>
+            <if test="group.id != null">
+                group_id = #{group.id},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--查询所有订单-->
+    <select id="orderList" resultType="Order">
+        SELECT <include refid="order_info"/>
+    </select>
+
+    <!--通过Page查询所有订单-->
+    <select id="orderListByPage" resultType="Order">
+        SELECT <include refid="order_info"/>
+    </select>
+
+    <!--根据学生id获取订单-->
+    <select id="selectOrderByMid" resultType="Order">
+        SELECT <include refid="order_info"/>
+        WHERE mo.member_id = #{mid}
+    </select>
+
+    <!--根据教师id获取订单-->
+    <select id="selectOrderByTid" resultType="Order">
+        SELECT <include refid="order_info"/>
+        WHERE mo.teacher_id = #{tid}
+    </select>
+
+    <!--根据分类id获取订单-->
+    <select id="selectOrderByCid" resultType="Order">
+        SELECT <include refid="order_info"/>
+        WHERE mo.category_id = #{cid}
+    </select>
+
+    <!--根据条目id获取订单-->
+    <select id="selectOrderByIid" resultType="Order">
+        SELECT <include refid="order_info"/>
+        WHERE mo.item_id = #{iid}
+    </select>
+
+    <!--根据团队id获取订单-->
+    <select id="selectOrderByGid" resultType="Order">
+        SELECT <include refid="order_info"/>
+        WHERE o.group_id = #{gid}
+    </select>
+
+</mapper>

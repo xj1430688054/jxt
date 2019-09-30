@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gl.jxt.dao.ITeacherDao">
+    <resultMap id="TeacherResult" type="Teacher">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="student_count" jdbcType="INTEGER" property="studentCount"/>
+        <collection property="categories" javaType="ArrayList" column="id" ofType="Category"  select="selectTeacherCategory" />
+    </resultMap>
+
+    <sql id="teacher_info">
+    id,NAME,capacity,student_count,content
+    FROM tb_teacher
+    </sql>
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="Teacher" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO tb_teacher (name,capacity,student_count,content)
+        VALUES (#{name},#{capacity},#{studentCount},#{content})
+    </insert>
+
+    <!--编辑老师信息-->
+    <update id="update" parameterType="Teacher">
+        UPDATE tb_teacher
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="capacity != null">
+                capacity = #{capacity},
+            </if>
+            <if test="studentCount != null">
+                student_count = #{studentCount},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--更新学生容量-->
+    <update id="updeteStudenCount">
+        UPDATE tb_teacher
+        SET student_count = student_count + #{count}
+        WHERE id = #{id}
+    </update>
+
+    <!--删除教师-->
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM tb_teacher WHERE id = #{id}
+    </delete>
+
+    <!--根据教师id获取分类-->
+    <select id="selectTeacherCategory" resultType="Category">
+        SELECT c.id, c.name
+        FROM tb_teacher_category tc
+            LEFT JOIN tb_category c
+            ON tc.category_id = c.id
+        WHERE tc.teacher_id = #{id}
+    </select>
+
+    <!--获取全部教师-->
+    <select id="teacherList" resultMap="TeacherResult">
+        SELECT <include refid="teacher_info"/>
+    </select>
+
+    <!--获取全部教师-->
+    <select id="teacherListByPage" resultMap="TeacherResult">
+        SELECT <include refid="teacher_info"/>
+    </select>
+
+    <!--根据id获取教师-->
+    <select id="findById" resultMap="TeacherResult">
+        SELECT <include refid="teacher_info"/>
+        WHERE id = #{id}
+    </select>
+
+</mapper>

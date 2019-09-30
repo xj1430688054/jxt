@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gl.jxt.dao.IDepartmentDao">
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="Department" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO tb_department (name) VALUES (#{name})
+    </insert>
+
+    <update id="update" parameterType="Department">
+        UPDATE tb_department SET name = #{name} WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM tb_department WHERE id = #{id}
+    </delete>
+
+    <select id="departmentList" resultType="Department">
+        SELECT id ,name FROM tb_department
+    </select>
+
+    <select id="findById"  resultType="Department">
+        SELECT id ,name FROM tb_department
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByName" parameterType="java.lang.String" resultType="Department">
+        SELECT id ,name FROM tb_department
+        WHERE name = #{name}
+    </select>
+
+</mapper>

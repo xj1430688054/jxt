@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gl.jxt.dao.ICategoryTeacherDao">
+
+    <!--保存教师分类关系-->
+    <insert id="saveTeacherCategory" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO tb_teacher_category (teacher_id,category_id)
+        VALUES (#{tid},#{cid})
+    </insert>
+
+    <!--删除教师分类关系-->
+    <delete id="deleteTeacherCategoryByTidAndCid" >
+        DELETE FROM tb_teacher_category WHERE teacher_id = #{tid} AND category_id = #{cid}
+    </delete>
+
+    <!--删除教师所有分类关系-->
+    <delete id="deleteTeacherCategoryByTid" >
+        DELETE FROM tb_teacher_category WHERE teacher_id = #{tid}
+    </delete>
+
+    <!--删除教师所有分类关系-->
+    <delete id="deleteTeacherCategoryByCid" >
+        DELETE FROM tb_teacher_category WHERE category_id = #{cid}
+    </delete>
+
+</mapper>

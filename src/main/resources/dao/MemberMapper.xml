@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gl.jxt.dao.IMemberDao">
+    <resultMap id="MemberResult" type="Member">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="class" jdbcType="VARCHAR" property="className"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="contact_phone" jdbcType="VARCHAR" property="contactPhone"/>
+        <result column="contact_email" jdbcType="VARCHAR" property="contactEmail"/>
+        <result column="state" jdbcType="INTEGER" property="state"/>
+    </resultMap>
+
+    <sql id="member_info">
+             m.id,m.number,m.name,m.class,m.password,m.contact_phone,m.contact_email,m.state,d.id 'department.id',d.name 'department.name'
+             FROM tb_member m
+             LEFT JOIN tb_department d
+             ON m.department_id=d.id
+    </sql>
+
+    <!-- 注册 -->
+    <insert id="register" parameterType="Member" keyProperty="id" useGeneratedKeys="true">
+    INSERT INTO tb_member (number, name, department_id, class, password, contact_phone, contact_email, state)
+    VALUES (#{number}, #{name}, #{department.id}, #{className}, #{password}, #{contactPhone}, #{contactEmail}, 0)
+    </insert>
+
+    <select id="login" parameterType="Member" resultMap="MemberResult">
+        SELECT <include refid="member_info" />
+        WHERE number = #{number} and password = #{password}
+    </select>
+
+    <!--编辑学生信息-->
+    <update id="update" parameterType="Member">
+        UPDATE tb_member
+        <set>
+            <if test="number != null and number != ''">
+                number = #{number },
+            </if>
+            <if test="name != null and name != ''">
+            name = #{name},
+            </if>
+            department_id = #{department.id},
+            class=#{className},
+            contact_phone=#{contactPhone},
+            contact_email=#{contactEmail}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--更改密码-->
+    <update id="changepwd">
+        UPDATE tb_member SET password=#{password} WHERE id=#{id}
+    </update>
+
+    <!--删除学生-->
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM tb_member WHERE id = #{id}
+    </delete>
+
+    <!--更改选取状态-->
+    <update id="changestate">
+        UPDATE tb_member SET state=#{state} WHERE id=#{id}
+    </update>
+
+    <!--更改系别-->
+    <update id="changeDepartment" parameterType="java.lang.Integer">
+        UPDATE tb_member SET department_id =#{nDid} WHERE department_id=#{did}
+    </update>
+
+    <!--查询所有学生-->
+    <select id="listByPage" parameterType="java.lang.Integer" resultMap="MemberResult">
+        SELECT <include refid="member_info" />
+    </select>
+
+    <!--查询所有学生-->
+    <select id="memberList" parameterType="java.lang.Integer" resultMap="MemberResult">
+        SELECT <include refid="member_info" />
+    </select>
+
+    <!--根据学生系别查找-->
+    <select id="memberListByDid" parameterType="java.lang.Integer" resultMap="MemberResult">
+        SELECT <include refid="member_info" />
+        WHERE d.id = #{id}
+    </select>
+
+    <!-- 根据学号查找 -->
+    <select id="findByNumber" parameterType="java.lang.String" resultMap="MemberResult">
+        SELECT <include refid="member_info" />
+        WHERE m.number = #{number}
+    </select>
+
+    <!--根据选取状态查找-->
+    <select id="findByState" parameterType="java.lang.String" resultMap="MemberResult">
+        SELECT <include refid="member_info" />
+        WHERE m.state = #{state}
+    </select>
+
+    <!-- 根据ID查找 -->
+    <select id="findById" parameterType="java.lang.Integer" resultMap="MemberResult">
+        SELECT <include refid="member_info" />
+        WHERE m.id = #{id}
+    </select>
+
+    <select id="findByNumberList" parameterType="java.util.ArrayList" resultMap="MemberResult">
+        SELECT <include refid="member_info" />
+        WHERE m.number IN
+        <foreach item="member" index="index" collection="list" open="(" separator="," close=")">
+            #{member.number }
+        </foreach>
+    </select>
+
+</mapper>

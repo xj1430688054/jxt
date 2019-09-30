@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gl.jxt.dao.ICategoryItemDao">
+
+    <!--保存条目分类关系-->
+    <insert id="saveItemCategory" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO tb_item_category (item_id,category_id)
+        VALUES (#{iid},#{cid})
+    </insert>
+
+    <!--删除条目分类关系-->
+    <delete id="deleteItemCategoryByIid" >
+        DELETE FROM tb_item_category WHERE item_id = #{iid}
+    </delete>
+
+    <!--删除条目分类关系-->
+    <delete id="deleteItemCategoryByCid" >
+        DELETE FROM tb_item_category WHERE category_id = #{cid}
+    </delete>
+
+    <!--根据分类id获取条目-->
+    <select id="getItemsByCid" resultMap="com.gl.jxt.dao.IItemDao.ItemResult">
+        SELECT i.id,i.NAME,i.type,i.state,i.create_time
+        FROM tb_item_category ic
+            LEFT JOIN tb_item i ON ic.item_id = i.id
+        WHERE ic.category_id = #{cid}
+    </select>
+
+    <!--根据分类id和条目id获取条目-->
+    <select id="selectCategoryItemByIidAndCid" resultType="CategoryItem">
+        SELECT c.id, c.name, d.id 'department.id', d.name 'department.name',ic.state 'state'
+        FROM tb_item_category ic
+            LEFT JOIN tb_category c
+            ON ic.category_id = c.id
+            LEFT JOIN tb_department d
+            ON d.id = c.department_id
+        WHERE ic.item_id = #{iid} AND ic.category_id = #{cid}
+    </select>
+
+    <!--更改选取状态-->
+    <update id="updateStateByIidAndCid">
+        UPDATE tb_item_category ic
+        SET state = #{state}
+        WHERE ic.item_id = #{iid} AND ic.category_id = #{cid}
+    </update>
+
+    <!--根据条目id和选取状态获取分类-->
+    <select id="selectItemByIdAndState" resultType="CategoryItem">
+        SELECT c.id, c.name, d.id 'department.id', d.name 'department.name',ic.state 'state'
+        FROM tb_item_category ic
+            LEFT JOIN tb_category c
+            ON ic.category_id = c.id
+            LEFT JOIN tb_department d
+            ON d.id = c.department_id
+        WHERE ic.item_id = #{iid} AND ic.state = #{state}
+    </select>
+
+    <select id="categoryItemList" resultType="CategoryItem">
+        SELECT c.id, c.name, d.id 'department.id', d.name 'department.name'
+        FROM  tb_category c
+            LEFT JOIN tb_department d
+            ON d.id = c.department_id
+    </select>
+
+</mapper>
